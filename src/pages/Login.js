@@ -5,6 +5,7 @@ import { setCookie } from "../shared/Cookie";
 import _ from 'lodash';
 import {useDispatch} from 'react-redux';
 import {actionCreators as userActions} from "../redux/modules/user";
+import {emailCheck} from "../shared/common";
 
 
 const Login = (props) => {
@@ -13,6 +14,11 @@ const Login = (props) => {
 
     const [id, setId] = React.useState('');
     const [pwd, setPwd] = React.useState('');
+
+    let is_disabled = false;
+    if(id === '' || pwd === ''){
+        is_disabled = true;
+    }
 
     const debounceId = _.debounce((e) => {
         setId(e.target.value);
@@ -24,14 +30,25 @@ const Login = (props) => {
 
     const debouncePwd = _.debounce((e) => {
         setPwd(e.target.value);
-    }, 1000);
+    }, 500);
 
     const pwdKeyPress = React.useCallback(debouncePwd, []);
 
     const changePwd = ((e) => pwdKeyPress(e));
 
     const login = () => {
-        dispatch(userActions.setUser({user_name:"wonseok"}));
+        if(id === "" || pwd === ""){
+            window.alert("아이디 혹은 비밀번호가 공란입니다. 입력해주세요");
+            return;
+        }
+
+        if(!emailCheck(id)){
+            window.alert("이메일 형식이 맞지 않습니다!");
+            return;
+        }
+
+        dispatch(userActions.loginFB(id, pwd));
+
     }
 
     
@@ -57,7 +74,9 @@ const Login = (props) => {
             <Button text="로그인하기"
             _onClick={() => {
                 login();
-            }}></Button>
+            }}
+            _disabled={is_disabled}
+            ></Button>
             
             </Grid>
         </React.Fragment>
